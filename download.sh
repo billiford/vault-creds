@@ -38,7 +38,13 @@ if [ -z "$DEST_ACCOUNT_JSON_CREDS_PATH" ]; then
     die "dest account json creds path DEST_ACCOUNT_JSON_CREDS_PATH needed to continue"
 fi
 
-vault write auth/approle/login role_id="$APPROLE_ID" secret_id="$APPROLE_SECRET_ID"
+VAULT_TOKEN=$(curl -s --request POST --data '{"role_id":"'"$APPROLE_ID"'","secret_id":"'"$APPROLE_SECRET_ID"'"}' "$VAULT_ADDR"/v1/auth/approle/login | jq -r '.auth.client_token')
+
+if [ -z "$VAULT_TOKEN" ]; then
+    die "Unable to get vault token with the provided approle ID and approle secret ID"
+fi
+
+vault login "$VAULT_TOKEN"
 
 # download source acct creds
 vault read -field "$VAULT_SOURCE_ACCOUNT_FIELD" secret/"$VAULT_SOURCE_ACCOUNT_PATH/$VAULT_SOURCE_ACCOUNT" > "$SOURCE_ACCOUNT_JSON_CREDS_PATH"
