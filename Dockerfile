@@ -5,7 +5,7 @@ RUN /install-hashicorp-tool "vault" "1.2.2"
 # Now copy the binary over into a smaller base image
 FROM alpine
 
-RUN apk add ca-certificates bash && \
+RUN apk add ca-certificates bash curl jq && \
   rm -rf /var/lib/apt/lists/*
 
 ENV LANG=en_US.UTF-8
